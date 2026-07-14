@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>СпортДайджест</title>
+    <style>
+        :root { --mocha: #9C7A66; --mocha-dark: #7A5C4C; --fog: #C7DAE8; --fog-dark: #A0B5C4; --text-primary: #3D2C23; --text-secondary: #7A6557; --white: #FFFFFF; --shadow: 0 2px 12px rgba(61,44,35,0.08); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--fog); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; -webkit-tap-highlight-color: transparent; user-select: none; }
+        .app { width: 100%; max-width: 500px; background: var(--fog); min-height: 100vh; display: flex; flex-direction: column; }
+        .header { padding: 16px; background: var(--white); border-bottom: 1px solid var(--fog-dark); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .header-top h1 { font-size: 20px; font-weight: 700; color: var(--mocha); }
+        .search-btn { background: var(--fog); border: none; width: 40px; height: 40px; border-radius: 12px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--mocha); }
+        .sport-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+        .sport-tab { flex: 1; padding: 12px 6px; border: 1.5px solid var(--mocha); border-radius: 14px; background: transparent; color: var(--mocha); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .sport-tab.active { background: var(--mocha); color: var(--white); }
+        .header-sub { display: flex; justify-content: space-between; align-items: center; }
+        .today-badge { font-size: 13px; color: var(--text-secondary); }
+        .fav-btn { background: var(--fog); border: none; padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; color: var(--text-secondary); font-weight: 500; }
+        .fav-btn.active { background: var(--mocha); color: var(--white); }
+        .news-feed { flex: 1; padding: 16px; overflow-y: auto; }
+        .section-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 14px; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); font-size: 15px; }
+        .news-card { background: var(--white); border-left: 4px solid var(--mocha); border-radius: 14px; padding: 16px; margin-bottom: 10px; display: flex; gap: 12px; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.15s; }
+        .news-card:active { transform: scale(0.98); }
+        .news-body { flex: 1; }
+        .news-body h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; line-height: 1.3; }
+        .news-time { font-size: 12px; color: var(--mocha); opacity: 0.8; }
+        .fav-star { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--fog-dark); align-self: center; }
+        .fav-star.starred { color: #D4A76A; }
+        .detail-header { border-bottom: 1px solid var(--fog-dark); background: var(--white); }
+        .detail-top { display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { background: none; border: none; color: var(--mocha); font-size: 16px; font-weight: 600; cursor: pointer; padding: 6px 0; }
+        .detail-sport { font-size: 14px; background: var(--fog); padding: 6px 14px; border-radius: 20px; color: var(--mocha-dark); font-weight: 500; }
+        .detail-content { padding: 20px; flex: 1; background: var(--white); margin: 12px; border-radius: 18px; box-shadow: var(--shadow); }
+        .detail-time { font-size: 13px; color: var(--mocha); display: block; margin-bottom: 12px; }
+        .detail-title { font-size: 22px; font-weight: 700; color: var(--text-primary); line-height: 1.3; margin-bottom: 16px; }
+        .detail-text { font-size: 16px; line-height: 1.7;
+
+
+: #5D4A3E; }
+        .bottom-nav { position: sticky; bottom: 0; display: flex; gap: 10px; padding: 12px 16px; background: var(--white); border-top: 1px solid var(--fog-dark); }
+        .nav-btn { flex: 1; padding: 14px; border-radius: 14px; border: none; background: var(--fog); color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .nav-btn.active { background: var(--mocha); color: var(--white); }
+    </style>
+</head>
+<body>
+    <div id="root" class="app"></div>
+    <script> color
+      const MOCK_NEWS = {
+            football: [
+                { id: 1, title: 'ЧМ-2026: Россия выходит в полуфинал!', fullText: 'В четвертьфинале сборная России обыграла Германию со счётом 3:2. Дубль оформил Александр Головин, победный гол на 89-й минуте забил Артём Дзюба.', timestamp: '2026-07-11T22:30:00', sport: 'football' },
+                { id: 2, title: 'Сенсация: Бразилия вылетает от Марокко', fullText: 'Марокканцы одержали победу 2:1 в дополнительное время. Это первый случай в истории, когда африканская сборная выходит в полуфинал чемпионата мира.', timestamp: '2026-07-11T20:00:00', sport: 'football' },
+                { id: 3, title: 'Аргентина — Франция: повторение финала 2022', fullText: 'Матч завершился со счётом 2:1 в пользу Аргентины. Месси отдал две голевые передачи.', timestamp: '2026-07-11T17:00:00', sport: 'football' },
+                { id: 4, title: 'Англия разгромила Португалию 4:0', fullText: 'Хет-трик Беллингема и гол Кейна обеспечили англичанам путёвку в полуфинал.', timestamp: '2026-07-11T14:00:00', sport: 'football' },
+                { id: 5, title: 'Месси — первый с 15 матчами в плей-офф ЧМ', fullText: 'Нападающий сборной Аргентины установил рекорд после матча со Швейцарией (3:1).', timestamp: '2026-07-12T13:25:07', sport: 'football' },
+                { id: 6, title: '«ПСЖ» готов заплатить €40 млн за Торреса', fullText: '«Барселона» оценивает его в €50 млн. В минувшем сезоне Торрес забил 21 гол.', timestamp: '2026-07-12T13:25:07', sport: 'football' },
+                { id: 7, title: '«Боруссия» Дортмунд отпустила Адейеми и Ветьена', fullText: 'Оба игрока освобождены для переговоров с другими клубами.', timestamp: '2026-07-12T16:28:00', sport: 'football' },
+                { id: 8, title: 'Ндой раскритиковал судейство в матче с Аргентиной', fullText: 'Нападающий сборной Швейцарии заявил, что судейство было разным для команд.', timestamp: '2026-07-12T17:02:00', sport: 'football' }
+            ],
+            hockey: [
+                { id: 9, title: 'Драфт НХЛ-2026: Мичков выбран первым номером', fullText: '18-летний россиянин был выбран «Чикаго Блэкхоукс».', timestamp: '2026-07-11T21:00:00', sport: 'hockey' },
+                { id: 10, title: 'Овечкин объявил о завершении карьеры', fullText: 'Он побил рекорд Гретцки и переходит на должность тренера.', timestamp: '2026-07-11T19:00:00', sport: 'hockey' },
+                { id: 11, title: 'ЦСКА подписал контракт с Капризовым', fullText: 'Звёздный нападающий вернулся в Россию, контракт на 3 года.', timestamp: '2026-07-11T16:00:00', sport: 'hockey' },
+                { id: 12, title: 'Сборная России начала подготовку к Олимпиаде-2026', fullText: 'Тренерский штаб вызвал 35 игроков на сбор.', timestamp: '2026-07-11T13:00:00', sport: 'hockey' },
+                { id: 13, title: 'Черкас: Овечкин побьёт рекорд Гретцки в этом году', fullText: 'Бывший тренер СКА считает, что Александр справится.', timestamp: '2026-07-12T13:30:00', sport: 'hockey' },
+                { id: 14, title: 'Инсайдер о будущем Селебрини в «Сан-Хосе»', fullText: 'Клуб может продлить соглашение с 20-летним канадцем.', timestamp: '2026-07-12T13:30:07', sport: 'hockey' }
+            ],
+        f1: [
+                { id: 15, title: 'Ферстаппен выиграл Гран-при Великобритании', fullText: 'Это 70-я победа Макса, он опередил Норриса и Расселла.', timestamp: '2026-07-11T18:30:00', sport: 'f1' },
+                { id: 16, title: 'Перес объявил об уходе из Red Bull', fullText: 'Серхио покинет команду в конце сезона.', timestamp: '2026-07-11T15:30:00', sport: 'f1' },
+                { id: 17, title: 'Ferrari представила новое антикрыло', fullText: 'Обновление должно прибавить 0,3 секунды на круге.', timestamp: '2026-07-11T12:30:00', sport: 'f1' },
+                { id: 18, title: 'Хэмилтон вернётся за руль в Германии', fullText: 'Льюис полностью восстановился после болезни.', timestamp: '2026-07-11T10:30:00', sport: 'f1' },
+                { id: 19, title: 'FIA объявила о переходе на биотопливо с 2028 года', fullText: 'Команды поддержали новый регламент.', timestamp: '2026-07-11T08:30:00', sport: 'f1' },
+                { id: 20, title: 'Алонсо продлил контракт с Aston Martin до 2029', fullText: '43-летний испанец подписал трёхлетнее соглашение.', timestamp: '2026-07-11T06:30:00', sport: 'f1' }
+            ]
+        };
+
+        const SPORTS = [
+            { key: 'football', label: '⚽ Футбол' },
+            { key: 'hockey', label: '🏒 Хоккей' },
+            { key: 'f1', label: '🏎 Формула-1' }
+        ];
+      function getRelativeTime(timestamp) {
+            const now = new Date();
+            const diff = now - new Date(timestamp);
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            if (days > 7) return new Date(timestamp).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+            if (days >= 1) return days === 1 ? 'вчера' : days + ' дня назад';
+            if (hours >= 1) return hours + ' час' + (hours % 10 === 1 && hours !== 11 ? '' : hours % 10 >= 2 && hours % 10 <= 4 && (hours < 10 || hours > 20) ? 'а' : 'ов') + ' назад';
+            if (minutes >= 1) return minutes + ' минут' + (minutes % 10 === 1 && minutes !== 11 ? 'у' : minutes % 10 >= 2 && minutes % 10 <= 4 && (minutes < 10 || minutes > 20) ? 'ы' : '') + ' назад';
+            return 'только что';
+        }
+
+        function getTodayDate() {
+            return new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        let state = {
+            activeSport: 'football',
+            selectedNews: null,
+            favorites: JSON.parse(localStorage.getItem('sportFavs') || '[]'),
+            showFavorites: false
+        };
+
+        function saveFavs() {
+            localStorage.setItem('sportFavs', JSON.stringify(state.favorites));
+        }
+
+        function toggleFavorite(id) {
+            if (state.favorites.includes(id)) {
+                state.favorites = state.favorites.filter(f => f !== id);
+            } else {
+                state.favorites.push(id);
+            }
+            saveFavs();
+            render();
+        }
+      function render() {
+            const sorted = (arr) => arr.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(n => ({ ...n, time: getRelativeTime(n.timestamp) }));
+            const currentNews = sorted(MOCK_NEWS[state.activeSport]);
+            const displayedNews = state.showFavorites ? sorted(Object.values(MOCK_NEWS).flat()).filter(n => state.favorites.includes(n.id)) : currentNews;
+            const root = document.getElementById('root');
+
+            if (state.selectedNews) {
+                const n = state.selectedNews;
+                root.innerHTML = `
+                    <div class="app">
+                        <div class="header detail-header"><div class="detail-top"><button class="back-btn" onclick="state.selectedNews=null;render()">← Назад</button><span class="detail-sport">${SPORTS.find(s=>s.key===n.sport)?.label||''}</span><button class="fav-star ${state.favorites.includes(n.id)?'starred':''}" onclick="event.stopPropagation();toggleFavorite(${n.id})">${state.favorites.includes(n.id)?'⭐':'☆'}</button></div></div>
+                        <div class="detail-content"><div class="detail-time">${getRelativeTime(n.timestamp)}</div><h1 class="detail-title">${n.title}</h1><div class="detail-text">${n.fullText}</div></div>
+                    </div>`;
+            } else {
+                const newsCards = displayedNews.length === 0 ? `<div class="empty-state"><p>😔 Пока ничего нет</p></div>` : displayedNews.map(n => `
+                    <div class="news-card" onclick="state.selectedNews = {id:${n.id},title:'${n.title.replace(/'/g, "\\'")}',fullText:'${n.fullText.replace(/'/g, "\\'")}',timestamp:'${n.timestamp}',sport:'${n.sport}'}; render();">
+                        <div class="news-body"><h3>${n.title}</h3><div class="news-time">${n.time}</div></div>
+                        <button class="fav-star ${state.favorites.includes(n.id)?'starred':''}" onclick="event.stopPropagation(); toggleFavorite(${n.id})">${state.favorites.includes(n.id)?'⭐':'☆'}</button>
+                    </div>`).join('');
+                
+                root.innerHTML = `
+                    <div class="app">
+                        <div class="header"><div class="header-top"><h1>🏠 СпортДайджест</h1><button class="search-btn">🔍</button></div>
+                        <div class="sport-tabs">${SPORTS.map(s=>`<button class="sport-tab ${state.activeSport===s.key?'active':''}" onclick="state.activeSport='${s.key}';state.showFavorites=false;render()">${s.label}</button>`).join('')}</div>
+                        <div class="header-sub"><span class="today-badge">📅 ${getTodayDate()}</span><button class="fav-btn ${state.showFavorites?'active':''}" onclick="state.showFavorites=!state.showFavorites;render()">⭐ Избранное ${state.favorites.length?'('+state.favorites.length+')':''}</button></div></div>
+                        <div class="news-feed"><div class="section-title">${state.showFavorites?'⭐ Избранное':'🔥 Главные новости дня'}</div>${newsCards}</div>
+                        <div class="bottom-nav"><button class="nav-btn active">🏠 Главная</button><button class="nav-btn">🔍 Поиск</button></div>
+                    </div>`;
+            }
+            if (window.Telegram?.WebApp) {
+                if (state.selectedNews) {
+                    window.Telegram.WebApp.BackButton.show();
+                } else {
+                    window.Telegram.WebApp.BackButton.hide();
+                }
+            }
+        }
+
+        window.Telegram?.WebApp.ready();
+        window.Telegram?.WebApp.expand();
+        window.Telegram?.WebApp.BackButton.onClick(() => { state.selectedNews = null; render(); });
+        render();
+    </script>
+</body>
+</html>
